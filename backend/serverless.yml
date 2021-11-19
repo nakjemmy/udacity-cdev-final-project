@@ -21,8 +21,8 @@ provider:
   # Use these variables in the functions and resources section below. For example,
   # ${self:provider.environment.ATTACHMENT_S3_BUCKET}
   environment:
-    RECIPE_TABLE: Recipes-${self:provider.stage}
-    RECIPE_CREATED_AT_INDEX: CreatedAtIndex
+    RECIPES_TABLE: Recipes-${self:provider.stage}
+    RECIPES_CREATED_AT_INDEX: CreatedAtIndex
     ATTACHMENT_S3_BUCKET: serverless-nakjemmy-recipe-images-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
 
@@ -158,9 +158,9 @@ resources:
           - AttributeName: recipeId
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
-        TableName: ${self:provider.environment.RECIPE_TABLE}
+        TableName: ${self:provider.environment.RECIPES_TABLE}
         LocalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.RECIPE_CREATED_AT_INDEX}
+          - IndexName: ${self:provider.environment.RECIPES_CREATED_AT_INDEX}
             KeySchema:
               - AttributeName: userId
                 KeyType: HASH
