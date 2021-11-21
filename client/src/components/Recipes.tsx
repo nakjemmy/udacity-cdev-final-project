@@ -44,7 +44,7 @@ export function Recipes() {
             return await getAccessTokenSilently();
 
         } catch (error) {
-            alert("Couldn't authenticate your request")
+            toast.current?.show({ severity: 'error', detail: "Couldn't authenticate your request" })
             throw error
         }
     }
@@ -125,10 +125,12 @@ export function Recipes() {
 
             hideDialog()
         } catch {
-            alert('Recipe creation failed')
+            toast.current?.show({ severity: 'error', detail: 'Recipe creation failed' })
+        } finally {
+            setSavingRecipe(false)
+            setSendingRequest(false)
         }
-        setSavingRecipe(false)
-        setSendingRequest(true)
+
     }
 
     const onRecipeDelete = async (recipeId: string) => {
@@ -146,8 +148,9 @@ export function Recipes() {
                     setRecipes(recipes.filter(recipe => recipe.recipeId !== recipeId))
                     toast.current?.show({ severity: 'info', summary: 'Recipe Deleted', detail: 'Recipe has been deleted successfully' });
                 } catch {
-                    alert('Recipe deletion failed')
+                    toast.current?.show({ severity: 'error', detail: 'Recipe deletion failed' })
                 } finally {
+                    console.log("This run")
                     setSendingRequest(false)
                 }
             },
@@ -179,7 +182,7 @@ export function Recipes() {
                 })
             )
         } catch {
-            alert('Recipe update failed')
+            toast.current?.show({ severity: 'error', detail: 'Recipe update failed' })
         } finally {
             setSendingRequest(false)
         }
@@ -202,7 +205,7 @@ export function Recipes() {
             hideDialog()
             fetchRecipes()
         } catch {
-            alert('Recipe update failed')
+            toast.current?.show({ severity: 'error', detail: 'Recipe update failed' })
         } finally {
             setSavingRecipe(false)
             setSendingRequest(false)
@@ -281,7 +284,10 @@ export function Recipes() {
         return (
             <div className="p-col-12">
                 <div className="recipe-list-item">
-                    <img src={recipe.attachmentUrl} alt={recipe.name} />
+                    <img
+                        src={recipe.attachmentUrl}
+                        alt={recipe.name}
+                        onError={(e) => e.currentTarget.src = "https://via.placeholder.com/300x200"} />
                     <div className="recipe-list-detail">
                         <div className="recipe-name">{recipe.name}</div>
                         <div className="recipe-description">{`${recipe.description.substring(0, 50)} ${recipe.description.length > 50 ? '...' : ''} `}</div>
@@ -300,9 +306,13 @@ export function Recipes() {
             <div className="p-col-12 p-md-4">
                 <div className="recipe-grid-item card">
                     <div className="recipe-grid-item-content">
-                        <img src={recipe.attachmentUrl} alt={recipe.name} />
+                        <img
+                            src={recipe.attachmentUrl}
+                            alt={recipe.name}
+                            onError={(e) => e.currentTarget.src = "https://via.placeholder.com/300x200"}
+                        />
                         <div className="recipe-name">{recipe.name}</div>
-                        <div className="recipe-description">{recipe.description.substring(0, 30)}</div>
+                        <div className="recipe-description">{`${recipe.description.substring(0, 50)} ${recipe.description.length > 50 ? '...' : ''} `}</div>
                     </div>
                     <div className="p-d-flex p-jc-center">
                         {renderActions(recipe)}
@@ -327,7 +337,8 @@ export function Recipes() {
         return (
             <div className="p-grid p-nogutter">
                 <div className="p-col-12" style={{ textAlign: 'right' }}>
-                    <DataViewLayoutOptions layout={layout} onChange={(e) => setLayout(e.value)} />
+                    <Button className="p-button-sm p-mr-2" loading={loadingRecipes} onClick={() => fetchRecipes()} tooltip="Reload" icon={PrimeIcons.REFRESH} tooltipOptions={{ position: 'left' }} />
+                    <DataViewLayoutOptions className="p-d-inline" layout={layout} onChange={(e) => setLayout(e.value)} />
                 </div>
             </div>
         );
@@ -335,8 +346,8 @@ export function Recipes() {
 
     const recipeDialogFooter = (
         <React.Fragment>
-            <Button label="Cancel" icon="pi pi-times" className="p-button-text" onClick={hideDialog} disabled={savingRecipe} />
-            <Button label="Save" icon="pi pi-check" className="p-button-text" loading={savingRecipe} disabled={!recipe.name || !recipe.description} onClick={() => isEditing ? onRecipeUpdate() : onRecipeCreate()} />
+            <Button label="Cancel" icon="pi pi-times" className="p-button p-button-sm p-button-outlined" onClick={hideDialog} disabled={savingRecipe} />
+            <Button label="Save" icon="pi pi-check" className="p-button p-button-sm" loading={savingRecipe} disabled={!recipe.name || !recipe.description} onClick={() => isEditing ? onRecipeUpdate() : onRecipeCreate()} />
         </React.Fragment>
     );
 
@@ -376,16 +387,16 @@ export function Recipes() {
                 footer={recipeDialogFooter}
                 onHide={hideDialog}>
                 <div className="p-field">
-                    <label htmlFor="name">Name</label>
+                    <label htmlFor="name">Name *</label>
                     <InputText id="name" value={recipe.name} onChange={(e) => onInputChange(e.target.value, 'name')} required autoFocus />
                 </div>
                 <div className="p-field mt-4">
-                    <label htmlFor="description">Description</label>
+                    <label htmlFor="description">Description *</label>
                     <InputTextarea id="description" value={recipe.description} onChange={(e) => onInputChange(e.target.value, 'description')} required rows={3} cols={20} />
                 </div>
                 <div className="p-field-checkbox mt-4">
-                    <Checkbox inputId="city2" value="Los Angeles" onChange={(e) => (onInputChange(e.target.checked, 'isFavourite'))} checked={recipe.isFavourite} />
-                    <label htmlFor="city2">Is Favourite</label>
+                    <Checkbox inputId="isFavourite" value={recipe.isFavourite} onChange={(e) => (onInputChange(e.target.checked, 'isFavourite'))} checked={recipe.isFavourite} />
+                    <label htmlFor="isFavourite">Is Favourite</label>
                 </div>
             </Dialog>
             <Dialog

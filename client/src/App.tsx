@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.scss';
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router';
-import { Route, Routes } from 'react-router-dom';
+import { Link, Route, Routes } from 'react-router-dom';
 import PrimeReact, { PrimeIcons } from 'primereact/api';
 import { LogIn } from './components/LogIn';
 import { Recipes } from './components/Recipes';
@@ -69,7 +69,7 @@ const LayoutToolbar = () => {
 
   const leftContents = (
     <React.Fragment>
-      <h2>Recipe App</h2>
+      <h2><Link style={{ textDecoration: 'none' }} to="/">Recipe App</Link></h2>
     </React.Fragment>
   );
 
